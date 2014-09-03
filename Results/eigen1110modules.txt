@@ -1,0 +1,4 @@
+Module	Membership	Drug Targets	Essential Genes	Drug Fraction	Essential Fraction	Hypergeometric Score of Module Target	Hypergeometric Score of Module Essential
+1	38	6.0	5.0	0.086	0.263	0.13376366437214024	0.0005959692934517161
+2	56	9.0	6.0	0.129	0.316	0.09434369888257814	0.0008160765083536506
+3	29	3.0	1.0	0.043	0.053	0.43393502372604087	0.22799776436064095

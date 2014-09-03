@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Gadget>
+    <UUID>220e77c0-316c-11e4-8c21-0800200c9a66</UUID>
+    <Name>PPiAnalyzer</Name>
+    <LaunchCommand>./gadgets/220e77c0-316c-11e4-8c21-0800200c9a66/Launch.sh</LaunchCommand>
+	
+    <IconPaths>
+        <Icon32Path>icons\anIcon.png</Icon32Path>
+    </IconPaths>
+    <Snapshots>
+        <SnapshotPath>snapshot\screenshot0.png</SnapshotPath>
+        <SnapshotPath>snapshot\screenshot1.png</SnapshotPath>
+    </Snapshots>
+    <Categories>
+        <Category>Analytics</Category>
+        <Category>Visualization</Category>
+    </Categories>
+    <Provider>SBI</Provider>
+    <Description>PPiAnalyzer analyzes clustered protein-protein interaction networks using the hypergeometric test, and returns a table for each module containing stats.</Description>
+    <LoadableKeys>
+        <InputFileFormat>
+            <FileExtension>txt</FileExtension>
+            <FileFormat>txt</FileFormat>
+        </InputFileFormat>
+        <InputFileFormat>
+            <FileExtension>csv</FileExtension>
+            <FileFormat>csv</FileFormat>
+        </InputFileFormat>
+        <OutputFileFormat>
+            <FileExtension>txt</FileExtension>
+            <FileFormat>txt</FileFormat>
+        </OutputFileFormat>
+    </LoadableKeys>
+    <LaunchEnv>
+        <Id>f22aa6a2-beff-4487-b838-03b8275a4361</Id>
+    </LaunchEnv>
+</Gadget>
