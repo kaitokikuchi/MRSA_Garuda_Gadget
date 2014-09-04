@@ -18,6 +18,15 @@ from garuda.garudaclientbackend import GarudaClientBackend, Gadget
 directory = '/Users/kaito/Dropbox/Data_Mining/MRSA_PIN/MRSA-scripts/Data'
 
 
+#Class for emmiting logs to screen
+class EmittingStream(QtCore.QObject):
+
+    textWritten = QtCore.pyqtSignal(str)
+
+    def write(self, text):
+        self.textWritten.emit(str(text))
+
+
 #GUI
 class GadgetFrame(QtGui.QMainWindow):
 
@@ -228,6 +237,10 @@ class GadgetFrame(QtGui.QMainWindow):
             #- print "Error:UnKnow MessageID."
             pass
 
+    def __del__(self):
+    # Restore sys.stdout
+        sys.stdout = sys.__stdout__
+
     def create_widgets(self):
         #Widgets
         self.ppi_label = QtGui.QLabel("PPi Matrix File:")
@@ -242,9 +255,8 @@ class GadgetFrame(QtGui.QMainWindow):
         self.ess_edit = QtGui.QLineEdit()
         self.ess_button = QtGui.QPushButton("Search")
 
-        self.result_label = QtGui.QLabel("Results:")
-        self.module_data = QtGui.QLineEdit()
-        self.module_button = QtGui.QPushButton("Save")
+        self.module_data = QtGui.QTextEdit()
+        self.module_button = QtGui.QPushButton("Analyze!")
 
         #grid layout
         grid = QtGui.QGridLayout()
@@ -262,9 +274,8 @@ class GadgetFrame(QtGui.QMainWindow):
         grid.addWidget(self.ess_edit, 3, 2)
         grid.addWidget(self.ess_button, 3, 3)
 
-        grid.addWidget(self.result_label, 4, 1)
-        grid.addWidget(self.module_data, 4, 2)
-        grid.addWidget(self.module_button, 4, 3)
+        grid.addWidget(self.module_button, 4, 1)
+        grid.addWidget(self.module_data, 4, 2, 2, 5)
 
         #Create central widget, add layout and set
         central_widget = QtGui.QWidget()
@@ -278,8 +289,8 @@ class GadgetFrame(QtGui.QMainWindow):
         QtCore.QObject.connect(self.module_button, QtCore.SIGNAL("clicked()"), self.DataProcess)
 
     def initUI(self):
-        self.setGeometry(300, 300, 400, 150)
-        self.setWindowTitle('Open Necessary Files')
+        self.setGeometry(300, 300, 500, 200)
+        self.setWindowTitle('PPi Analyzer')
         self.show()
 
     #Define function to calculate hypergeometric scores
@@ -297,12 +308,13 @@ class GadgetFrame(QtGui.QMainWindow):
 
     #Instance to read in PPi matrix
     def OpenPPiFile(self):
+        self.module_data.append("Opening PPi File...")
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', directory)
         baitref = []
         preyref = []
         self.ppi_edit.setText(fname)
         f = open(fname, 'r')
-
+        self.module_data.append("Populating Protein List...")
         with f:
             reader = csv.reader(f, delimiter=',')
             next(reader, None)
@@ -311,11 +323,14 @@ class GadgetFrame(QtGui.QMainWindow):
                 baitref.append(a)
                 b = row[2]
                 preyref.append(b)
+
         self.pnamelist.extend(x for x in baitref if x not in self.pnamelist)
         self.pnamelist.extend(x for x in preyref if x not in self.pnamelist)
+        self.module_data.append("Please Open Drug Target List File")
 
     #Instance to read in Drug Targets
     def OpenDrugFile(self):
+        self.module_data.append("Opening Drug Target List File...")
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', directory)
         druglist = []
         self.drug_edit.setText(fname)
@@ -336,10 +351,11 @@ class GadgetFrame(QtGui.QMainWindow):
             else:
                 self.targetdict[x] = 0
         self.drugtotal = sum(x == 1 for x in self.targetdict.values())
-        #print(self.drugtotal)
+        self.module_data.append("Please Open Essential Protein List File")
 
     #Instance to read in Essential Proteins
     def OpenEssFile(self):
+        self.module_data.append("Opening Essential Protein List File...")
         fname = QtGui.QFileDialog.getOpenFileName(self, 'Open file', directory)
         essential = []
         self.ess_edit.setText(fname)
@@ -358,8 +374,10 @@ class GadgetFrame(QtGui.QMainWindow):
 
         self.essentialtotal = sum(x == 1 for x in self.essentialdict.values())
         #print(self.essentialtotal)
+        self.module_data.append("Press Analyze!")
 
     def DataProcess(self):
+        self.module_data.append("Starting PPi Analysis...")
         filelist = []
         for files in glob.iglob('/Users/kaito/Dropbox/Data_Mining/MRSA_PIN/ClusteredResults/*.txt'):
             filelist.append(files)
@@ -394,8 +412,6 @@ class GadgetFrame(QtGui.QMainWindow):
                 if self.targetdict[k] == 1:
                     moduletarget[v] = moduletarget[v] + 1.0
 
-            #print(moduletarget)
-
             moduleess = {}
             for k, v in moddict.items():
                 moduleess[v] = 0.0
@@ -425,6 +441,8 @@ class GadgetFrame(QtGui.QMainWindow):
                 writer.writerow(('Module', 'Membership', 'Drug Targets', 'Essential Genes', 'Drug Fraction', 'Essential Fraction', 'Hypergeometric Score of Module Target','Hypergeometric Score of Module Essential'))
                 for x in self.modulename:
                     writer.writerow((x, moduletotal[x], moduletarget[x], moduleess[x], round(moduletarget[x]/self.drugtotal, 3), round(moduleess[x]/self.essentialtotal, 3), moddrughypergeo[x], modesshypergeo[x]))
+
+        self.module_data.append("Completed Analysis! Stats are stored at gadgets/220e77c0-316c-11e4-8c21-0800200c9a66/Results")
 
 
 def main():
